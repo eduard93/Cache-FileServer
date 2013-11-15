@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Fileserver.JSON">
+<Super>%Base</Super>
+<TimeCreated>63140,78388.642251</TimeCreated>
+
+<Method name="FileListToJSON">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+		set st=$$$OK
+		try{
+			do ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,"SELECT ID, Name, Size, Extension FROM Fileserver.File")
+		} catch ex{
+			set st=ex.AsStatus()
+		}
+    	quit st
+]]></Implementation>
+</Method>
+
+<Method name="RequestFile">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>FileID:%Integer</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set CheckCustomPermission=1
+	if CheckCustomPermission=1 
+	{
+		do ..GenerateDownload(FileID)
+	}
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="GenerateDownload">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>FileID:%Integer</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	set download=##class(Fileserver.Download).%New()
+	set download.DateCreated=$ZDATETIME($NOW(),3)
+	set download.DateActiveUntil=$ZDATETIME(($PIECE($NOW(),",",1)+1)_","_$PIECE($NOW(),",",2),3)
+	set download.IP="Not implemented"
+	set download.File=##class(Fileserver.File).%OpenId(FileID)
+	do download.DownloadIDGenerate()
+	zw download
+	do download.%Save()
+	quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

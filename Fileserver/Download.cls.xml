@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Fileserver.Download">
+<Super>%Persistent</Super>
+<TimeCreated>63140,74733.04832</TimeCreated>
+
+<Property name="DateCreated">
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="DateActiveUntil">
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="IP">
+<Type>%String</Type>
+</Property>
+
+<Property name="DownloadID">
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="100"/>
+</Property>
+
+<Index name="DownloadIDIndex">
+<Properties>DownloadID</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Property name="File">
+<Type>Fileserver.File</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Downloads</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<UDLText name="T">
+<Content><![CDATA[
+// Index FileIndex On FileTarg;
+
+]]></Content>
+</UDLText>
+
+<Method name="DownloadIDGenerate">
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+		
+	set temp = ""
+	set length = 64 + $Random(33)
+	for {
+    	set temp = temp _ $Char(65 + $Random(25))
+    	quit:$Length(temp)>length
+	}
+
+	set ..DownloadID = temp
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Fileserver.DownloadD</DataLocation>
+<DefaultData>DownloadDefaultData</DefaultData>
+<IdLocation>^Fileserver.DownloadD</IdLocation>
+<IndexLocation>^Fileserver.DownloadI</IndexLocation>
+<StreamLocation>^Fileserver.DownloadS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="DownloadDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>DateCreated</Value>
+</Value>
+<Value name="3">
+<Value>DateActiveUntil</Value>
+</Value>
+<Value name="4">
+<Value>IP</Value>
+</Value>
+<Value name="5">
+<Value>DownloadID</Value>
+</Value>
+<Value name="6">
+<Value>File</Value>
+</Value>
+<Value name="7">
+<Value>FileTarg</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

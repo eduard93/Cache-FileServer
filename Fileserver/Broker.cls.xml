@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Fileserver.Broker">
+<Super>%CSP.REST</Super>
+<TimeCreated>63140,63777.17696</TimeCreated>
+
+<XData name="UrlMap">
+<Data><![CDATA[
+<Routes>
+<Route Url="/filelist" Method="GET" Call="Fileserver.JSON:FileListToJSON"/> 
+<Route Url="/requestfile/:fileid" Method="GET" Call="Fileserver.JSON:RequestFile"/>
+
+<Route Url="/test" Method="GET" Call="Test"/> 
+<Route Url="/test2" Method="GET" Call="Test2"/> 
+ </Routes>
+]]></Data>
+</XData>
+
+<Method name="Test">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	/*&html<<h1>Работает?!</h1>>
+	&html<<h1>Работает!!!</h1>>
+	%File*/
+	//Set %response.ContentType="image/jpeg"
+	Set %response.ContentType="application/octet-stream"
+		do %response.SetHeader("Content-Disposition","attachment; filename=""myfile.jpg""")
+	//Set %response.ContentDisposition="attachment; filename=""myfile.txt"""
+	Set stream=##class(%FileBinaryStream).%New()
+	Set stream.Filename="D:\Pictures\1384430387175.jpg"
+	While 'stream.AtEnd {
+	Set line=stream.Read()
+	; Process the chunk here
+		w line
+	}
+	
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="Test2">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	zw %response
+	//Set %response.ContentType="image/jpeg"
+	Set %response.ContentType="application/octet-stream"
+	do %response.SetHeader("Content-Disposition","attachment; filename=""myfile.txt""")
+	&html<<br><br><br>>
+	zw %response
+	quit $$$OK
+]]></Implementation>
+</Method>
+</Class>
+</Export>

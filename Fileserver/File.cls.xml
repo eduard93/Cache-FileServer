@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="Fileserver.File">
+<Super>%Persistent</Super>
+<TimeCreated>63140,72654.477177</TimeCreated>
+
+<Property name="Name">
+<Type>%String</Type>
+</Property>
+
+<Property name="Directory">
+<Type>%String</Type>
+</Property>
+
+<Property name="Extension">
+<Type>%String</Type>
+</Property>
+
+<Property name="Size">
+<Type>%BigInt</Type>
+</Property>
+
+<Property name="DateCreated">
+<Type>%TimeStamp</Type>
+</Property>
+
+<Property name="DateModified">
+<Type>%TimeStamp</Type>
+</Property>
+
+<UDLText name="T">
+<Content><![CDATA[
+// Property Downloads As list Of Download;
+
+]]></Content>
+</UDLText>
+
+<Property name="Downloads">
+<Type>Fileserver.Download</Type>
+<Cardinality>many</Cardinality>
+<Inverse>File</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Method name="HarvestDir">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dir:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if ##class(%File).DirectoryExists(dir)
+	{
+		set rs=##Class(%ResultSet).%New("%File.FileSet")
+ 		do rs.Execute(dir,"*",,1) // build result set of all dll and exe files there
+ 		while rs.Next() {
+			if rs.Get("Type")'="D" //check for directories like iwhut.exe
+			{
+				set file=..%New()
+				set file.Name=rs.Get("ItemName")
+				set file.Directory=##class(%Library.File).GetDirectory(rs.Get("Name"))
+				set file.Extension=$p(file.Name,".",*)
+				set file.Size=rs.Get("Size")
+				set file.DateCreated=rs.Get("DateCreated")				
+				set file.DateModified=rs.Get("DateModified")
+				do file.%Save()
+			}	 
+		}
+	} else {
+		set st = $$$ERROR("No such directory")
+	}
+	quit st
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Fileserver.FileD</DataLocation>
+<DefaultData>FileDefaultData</DefaultData>
+<IdLocation>^Fileserver.FileD</IdLocation>
+<IndexLocation>^Fileserver.FileI</IndexLocation>
+<StreamLocation>^Fileserver.FileS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="FileDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Name</Value>
+</Value>
+<Value name="3">
+<Value>Directory</Value>
+</Value>
+<Value name="4">
+<Value>Extension</Value>
+</Value>
+<Value name="5">
+<Value>Size</Value>
+</Value>
+<Value name="6">
+<Value>DateCreated</Value>
+</Value>
+<Value name="7">
+<Value>DateModified</Value>
+</Value>
+<Value name="8">
+<Value>Downloads</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>
