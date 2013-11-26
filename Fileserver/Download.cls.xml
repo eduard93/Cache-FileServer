@@ -1,25 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
 <Class name="Fileserver.Download">
+<Description>
+One download of a file. </Description>
 <Super>%Persistent</Super>
 <TimeCreated>63140,74733.04832</TimeCreated>
 
 <Property name="DateCreated">
+<Description><![CDATA[
+Creation date of download  in <i>YYYY-MM-DD hh:mm:ss</i> format.]]></Description>
 <Type>%TimeStamp</Type>
 </Property>
 
 <Property name="DateActiveUntil">
+<Description><![CDATA[
+Download (as in file transfer) may be initiatyed by a client until this date in <i>YYYY-MM-DD hh:mm:ss</i> format.]]></Description>
 <Type>%TimeStamp</Type>
 </Property>
 
 <Property name="IP">
+<Description>
+IP of a client initiated creation of download.</Description>
 <Type>%String</Type>
 </Property>
 
 <Property name="DownloadID">
+<Description>
+Random letter combination. NOT a private key.</Description>
 <Type>%String</Type>
 <Required>1</Required>
 <Parameter name="MAXLEN" value="100"/>
+</Property>
+
+<Property name="DownloadCount">
+<Description>
+Number of filetransfers occured for this download.</Description>
+<Type>%Integer</Type>
+<InitialExpression>"0"</InitialExpression>
+<Required>1</Required>
 </Property>
 
 <Index name="DownloadIDIndex">
@@ -28,6 +46,8 @@
 </Index>
 
 <Property name="File">
+<Description>
+File to download.</Description>
 <Type>Fileserver.File</Type>
 <Cardinality>one</Cardinality>
 <Inverse>Downloads</Inverse>
@@ -42,6 +62,8 @@
 </UDLText>
 
 <Method name="DownloadIDGenerate">
+<Description>
+Generate and set DownloadID. Generates random upper case string, from 64 to 96 symbols </Description>
 <ReturnType>%Status</ReturnType>
 <ServerOnly>1</ServerOnly>
 <Implementation><![CDATA[
@@ -87,6 +109,9 @@
 </Value>
 <Value name="7">
 <Value>FileTarg</Value>
+</Value>
+<Value name="8">
+<Value>DownloadCount</Value>
 </Value>
 </Data>
 </Storage>

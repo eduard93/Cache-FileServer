@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
 <Class name="Fileserver.Broker">
+<Description>
+</Description>
 <Super>%CSP.REST</Super>
 <TimeCreated>63140,63777.17696</TimeCreated>
 
 <XData name="UrlMap">
 <Data><![CDATA[
 <Routes>
-<Route Url="/filelist" Method="GET" Call="Fileserver.JSON:FileListToJSON"/> 
+<Route Url="/getfilelist" Method="GET" Call="Fileserver.JSON:FileListToJSON"/> 
 <Route Url="/requestfile/:fileid" Method="GET" Call="Fileserver.JSON:RequestFile"/>
+<Route Url="/download/:downloadid" Method="GET" Call="Fileserver.JSON:DownloadFile"/>
 
 <Route Url="/test" Method="GET" Call="Test"/> 
 <Route Url="/test2" Method="GET" Call="Test2"/> 

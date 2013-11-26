@@ -1,50 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
 <Class name="Fileserver.File">
+<Description>
+Represents one file served on fileserver.</Description>
+<ClassType>persistent</ClassType>
+<IncludeCode>%occErrors</IncludeCode>
 <Super>%Persistent</Super>
 <TimeCreated>63140,72654.477177</TimeCreated>
 
 <Property name="Name">
+<Description>
+Name of the file (without path, but with extension).</Description>
 <Type>%String</Type>
 </Property>
 
 <Property name="Directory">
+<Description>
+Path of the file.</Description>
 <Type>%String</Type>
 </Property>
 
 <Property name="Extension">
+<Description>
+Extension of the file.</Description>
 <Type>%String</Type>
 </Property>
 
 <Property name="Size">
+<Description>
+Size of the file in bytes.</Description>
 <Type>%BigInt</Type>
 </Property>
 
 <Property name="DateCreated">
+<Description><![CDATA[
+Date of creation of the file in <i>YYYY-MM-DD hh:mm:ss</i> format.]]></Description>
 <Type>%TimeStamp</Type>
 </Property>
 
 <Property name="DateModified">
+<Description><![CDATA[
+Date of modification of the file in <i>YYYY-MM-DD hh:mm:ss</i> format.]]></Description>
 <Type>%TimeStamp</Type>
 </Property>
 
-<UDLText name="T">
-<Content><![CDATA[
-// Property Downloads As list Of Download;
-
-]]></Content>
-</UDLText>
-
 <Property name="Downloads">
+<Description>
+All downloads of the file</Description>
 <Type>Fileserver.Download</Type>
 <Cardinality>many</Cardinality>
 <Inverse>File</Inverse>
 <Relationship>1</Relationship>
 </Property>
 
-<Method name="HarvestDir">
+<Index name="DirName">
+<Properties>Directory,Name</Properties>
+<Unique>1</Unique>
+</Index>
+
+<UDLText name="T">
+<Content><![CDATA[
+// do ##class(Fileserver.File).AddDir("D:\Pictures\Desktop")
+
+]]></Content>
+</UDLText>
+
+<Method name="AddDir">
+<Description><![CDATA[
+Add files from directory <b>dir</b> to fileserver.<br>
+<b>rec</b> - recursive: 1 - to add subfolders, 0 - so skip them.]]></Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>dir:%String</FormalSpec>
+<FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set st=$$$OK
@@ -57,18 +83,70 @@
 			{
 				set file=..%New()
 				set file.Name=rs.Get("ItemName")
-				set file.Directory=##class(%Library.File).GetDirectory(rs.Get("Name"))
+				set file.Directory=##class(%File).GetDirectory(rs.Get("Name"))
 				set file.Extension=$p(file.Name,".",*)
 				set file.Size=rs.Get("Size")
 				set file.DateCreated=rs.Get("DateCreated")				
 				set file.DateModified=rs.Get("DateModified")
 				do file.%Save()
-			}	 
+			} else {
+				if (rec=1) {
+					do ..AddDir(rs.Get("Name"),1)
+				}
+			} 
 		}
 	} else {
-		set st = $$$ERROR("No such directory")
+		set st = $$$ERROR($$$GeneralError,"No such directory")
 	}
 	quit st
+]]></Implementation>
+</Method>
+
+<Method name="DelDir">
+<Description><![CDATA[
+Delete files from  directory <b>dir</b> to fileserver.<br>
+<b>rec</b> - recursive: 1 - to delete subfolders, 0 - so skip them.]]></Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	set dir=##class(%File).NormalizeDirectory(dir)
+	try {
+		if (rec=0) {
+			&SQL(DELETE FROM "File" WHERE Directory=:dir)
+		} else {
+			&SQL(DELETE FROM "File" WHERE Directory %STARTSWITH :dir)
+		}
+	} catch ex {
+		set st=$System.Status.Error($$$GeneralError,ex.AsSystemError())
+	}
+	quit st
+]]></Implementation>
+</Method>
+
+<Method name="UpdDir">
+<Description><![CDATA[
+Update files from directory <b>dir</b> on fileserver.<br>
+<b>rec</b> - recursive: 1 - to update subfolders, 0 - so skip them.]]></Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	// REWRITE IT
+	set st=$$$OK
+	try {
+		if (rec=0) {
+			do ..DelDir(dir, 0)
+			do ..AddDir(dir, 0)
+		} else {
+			do ..DelDir(dir, 1)
+			do ..AddDir(dir, 1)
+			
+		}
+	} catch ex {
+		set st=$System.Status.Error($$$GeneralError,ex.AsSystemError())
+	}
 ]]></Implementation>
 </Method>
 
@@ -85,25 +163,16 @@
 <Value>%%CLASSNAME</Value>
 </Value>
 <Value name="2">
-<Value>Name</Value>
-</Value>
-<Value name="3">
-<Value>Directory</Value>
-</Value>
-<Value name="4">
 <Value>Extension</Value>
 </Value>
-<Value name="5">
+<Value name="3">
 <Value>Size</Value>
 </Value>
-<Value name="6">
+<Value name="4">
 <Value>DateCreated</Value>
 </Value>
-<Value name="7">
+<Value name="5">
 <Value>DateModified</Value>
-</Value>
-<Value name="8">
-<Value>Downloads</Value>
 </Value>
 </Data>
 </Storage>

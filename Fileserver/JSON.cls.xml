@@ -26,7 +26,10 @@
 	set CheckCustomPermission=1
 	if CheckCustomPermission=1 
 	{
-		do ..GenerateDownload(FileID)
+		set DownloadId=..GenerateDownload(FileID)
+		&html<<h2>Your download is ready</h2>>
+		w %request.GetCgiEnv("HTTP_HOST")_"/fileserver/download/"_DownloadId
+		
 	}
 	quit $$$OK
 ]]></Implementation>
@@ -35,17 +38,38 @@
 <Method name="GenerateDownload">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>FileID:%Integer</FormalSpec>
-<ReturnType>%Status</ReturnType>
+<ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	
 	set download=##class(Fileserver.Download).%New()
 	set download.DateCreated=$ZDATETIME($NOW(),3)
 	set download.DateActiveUntil=$ZDATETIME(($PIECE($NOW(),",",1)+1)_","_$PIECE($NOW(),",",2),3)
-	set download.IP="Not implemented"
+	set download.IP=%request.GetCgiEnv("REMOTE_ADDR")
 	set download.File=##class(Fileserver.File).%OpenId(FileID)
 	do download.DownloadIDGenerate()
-	zw download
+	set DownloadID = download.DownloadID
 	do download.%Save()
+	kill download
+	quit DownloadID
+]]></Implementation>
+</Method>
+
+<Method name="DownloadFile">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>DownloadId:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set FileId=2
+	//&SQL(SELECT File INTO :FileId FROM "Download" WHERE DownloadId=:DownloadID)
+	set File=##class(Fileserver.File).%OpenId(FileId)
+	set %response.ContentType="application/octet-stream"
+	do %response.SetHeader("Content-Disposition","attachment; filename="""_File.Name_"""")
+	Set stream=##class(%FileBinaryStream).%New()
+	Set stream.Filename=File.Directory_File.Name
+	While 'stream.AtEnd {
+	Set line=stream.Read()
+		w line
+	}
+	
 	quit $$$OK
 ]]></Implementation>
 </Method>
