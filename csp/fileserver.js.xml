@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="fileserver.js" application="/csp/fileserver/" default="1"><![CDATA[
+function control($scope, $http) {
+
+	// Get list of files
+    $scope.getFiles = function () { 
+        $http.get("/fileserver/getfilelist").success(
+        	function (data) 
+        	{
+            	$scope.files = data.children;
+        	}).error(
+        	function (data, status) 
+        	{  
+        		$scope.alerts.push({ type: "error", msg: "Error downloading filelist" });
+      		})
+	}
+	
+ };]]></CSP>
+</Export>

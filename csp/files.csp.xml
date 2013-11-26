@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<CSP name="files.csp" application="/csp/fileserver/" default="1"><![CDATA[
+<html ng-app>
+<head>
+
+<!-- Put your page Title here -->
+<title>	Fileserver </title>
+<link href="/csp/fileserver/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="/csp/fileserver/fileserver.css" rel="stylesheet" type="text/css">
+<script src="/csp/fileserver/angular.min.js"></script>
+<script src="/csp/fileserver/fileserver.js"></script>
+</head>
+<body ng-controller="control" ng-init="getFiles();">
+	<h2 class="text-center">
+		Fileserver
+		<span class="label label-danger">HOT files</span>
+		<span class="label label-info">TOP speed</span>
+	</h2>
+	<nav class="navbar navbar-default" role="navigation">
+		<p class="navbar-text navbar-left">Name</p>
+		<!--<p class="navbar-text navbar-center">Size</p>-->
+		<p class="navbar-text navbar-right">Download</p>
+	</nav>
+	<div class="files">
+		<li ng-repeat="file in files">
+        	<span class="link">{{file.Name}}</span>
+        	<a href="/fileserver/requestfile/{{file.ID}}"  type="button" class="btn btn-success">Download</a>
+        </li>
+	</div>
+</body>
+
+
+</html>
+]]></CSP>
+</Export>
