@@ -10,3 +10,4 @@ Install.<br>
 
 If installation has been completed successfully, then your server will be available at: http://[server ip]:[server port]/fileserver/files<br>
 Test info at:  http://[server ip]:[server port]/fileserver/test<br>
+Add directory with files to fileserver: do ##class(Fileserver.File).AddDir("Path\to\dir")
