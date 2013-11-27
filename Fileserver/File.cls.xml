@@ -77,9 +77,9 @@ Add files from directory <b>dir</b> to fileserver.<br>
 	if ##class(%File).DirectoryExists(dir)
 	{
 		set rs=##Class(%ResultSet).%New("%File.FileSet")
- 		do rs.Execute(dir,"*",,1) // build result set of all dll and exe files there
+ 		do rs.Execute(dir,"*",,1) // build result set of all files in dir
  		while rs.Next() {
-			if rs.Get("Type")'="D" //check for directories like iwhut.exe
+			if rs.Get("Type")'="D" //check for directories
 			{
 				set file=..%New()
 				set file.Name=rs.Get("ItemName")
@@ -173,6 +173,12 @@ Update files from directory <b>dir</b> on fileserver.<br>
 </Value>
 <Value name="5">
 <Value>DateModified</Value>
+</Value>
+<Value name="6">
+<Value>Name</Value>
+</Value>
+<Value name="7">
+<Value>Directory</Value>
 </Value>
 </Data>
 </Storage>

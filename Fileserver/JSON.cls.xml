@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25">
 <Class name="Fileserver.JSON">
+<IncludeCode>%occErrors</IncludeCode>
 <Super>%Base</Super>
 <TimeCreated>63140,78388.642251</TimeCreated>
 
 <Method name="FileListToJSON">
+<Description>
+Converts SQL query result to JSON.</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
@@ -19,6 +22,8 @@
 </Method>
 
 <Method name="RequestFile">
+<Description>
+Custom user actions to get access to file.</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>FileID:%Integer</FormalSpec>
 <ReturnType>%Status</ReturnType>
@@ -27,22 +32,31 @@
 	if CheckCustomPermission=1 
 	{
 		set DownloadId=..GenerateDownload(FileID)
-		&html<<h2>Your download is ready</h2>>
-		w %request.GetCgiEnv("HTTP_HOST")_"/fileserver/download/"_DownloadId
-		
+		set DownloadLink="http://"_%request.GetCgiEnv("HTTP_HOST")_"/fileserver/download/"_DownloadId
+		&html<
+		<html>
+		<body style="text-align: center;">
+			<h2>Your download is ready</h2>
+			<h3>Active only for your IP for the next 24 hours</h3>
+			<a href="#(DownloadLink)#">Click to start your download</a>
+		</body>
+		</html>			
+		>
 	}
 	quit $$$OK
 ]]></Implementation>
 </Method>
 
 <Method name="GenerateDownload">
+<Description>
+Create Fileserver.Download object.</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>FileID:%Integer</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	set download=##class(Fileserver.Download).%New()
 	set download.DateCreated=$ZDATETIME($NOW(),3)
-	set download.DateActiveUntil=$ZDATETIME(($PIECE($NOW(),",",1)+1)_","_$PIECE($NOW(),",",2),3)
+	set download.DateActiveUntil=$ZDATETIME(($PIECE($NOW(),",",1)+1)_","_$PIECE($NOW(),",",2),3) // Active for 24 hours
 	set download.IP=%request.GetCgiEnv("REMOTE_ADDR")
 	set download.File=##class(Fileserver.File).%OpenId(FileID)
 	do download.DownloadIDGenerate()
@@ -54,23 +68,40 @@
 </Method>
 
 <Method name="DownloadFile">
+<Description>
+Check if user has a correct Fileserver.Download object, serve him his file.</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>DownloadId:%String</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
-	set FileId=2
-	//&SQL(SELECT File INTO :FileId FROM "Download" WHERE DownloadId=:DownloadID)
-	set File=##class(Fileserver.File).%OpenId(FileId)
-	set %response.ContentType="application/octet-stream"
-	do %response.SetHeader("Content-Disposition","attachment; filename="""_File.Name_"""")
-	Set stream=##class(%FileBinaryStream).%New()
-	Set stream.Filename=File.Directory_File.Name
-	While 'stream.AtEnd {
-	Set line=stream.Read()
-		w line
+	try {
+		&SQL(SELECT "File"->"Name","File"->"Directory","IP","DownloadCount","DateActiveUntil" INTO :fname, :fdir,:ip,:dcount,:dateactive FROM Fileserver.Download WHERE DownloadID=:DownloadId)
+		if (SQLCODE=0)
+		{
+			if ((ip=%request.GetCgiEnv("REMOTE_ADDR")) && ($ZDATETIMEH(dateactive,3,1)>$HOROLOG))
+			{
+				//w $ZDATETIMEH(dateactive,3,1)," ",$HOROLOG
+				set dcount=dcount+1
+				&SQL(UPDATE Fileserver.Download SET "DownloadCount"=:dcount WHERE DownloadID=:DownloadId)
+				set %response.ContentType="application/octet-stream"
+				do %response.SetHeader("Content-Disposition","attachment; filename="""_fname_"""")
+				set stream=##class(%FileBinaryStream).%New()
+				set stream.Filename=fdir_fname
+				while 'stream.AtEnd {
+				set line=stream.Read()
+					write line
+				}
+			}
+			else {
+				set st=$System.Status.Error($$$GeneralError,"Download time limit exceeded, or another IP")
+			}
+		} else {
+			set st = $System.Status.Error($$$SQLError, , SQLCODE, "DownloadID not fount")
+		}
+	}catch ex {
+		set st=$$$ADDSC($System.Status.Error($$$GeneralError,ex.AsSystemError()), st)
 	}
-	
-	quit $$$OK
+	quit st
 ]]></Implementation>
 </Method>
 </Class>

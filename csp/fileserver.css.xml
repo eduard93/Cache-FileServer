@@ -20,7 +20,6 @@
 
 .files a {
 	float: right;
-	/*margin:  3px 10px 0 0;*/
 }
 
 .navbar {

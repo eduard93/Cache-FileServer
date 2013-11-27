@@ -3,8 +3,6 @@
 <CSP name="files.csp" application="/csp/fileserver/" default="1"><![CDATA[
 <html ng-app>
 <head>
-
-<!-- Put your page Title here -->
 <title>	Fileserver </title>
 <link href="/csp/fileserver/bootstrap.min.css" rel="stylesheet" type="text/css">
 <link href="/csp/fileserver/fileserver.css" rel="stylesheet" type="text/css">
@@ -25,12 +23,11 @@
 	<div class="files">
 		<li ng-repeat="file in files">
         	<span class="link">{{file.Name}}</span>
+        	<!--<span class="link">{{file.Size/1024 | number:0}} Kb</span>-->
         	<a href="/fileserver/requestfile/{{file.ID}}"  type="button" class="btn btn-success">Download</a>
         </li>
 	</div>
 </body>
-
-
 </html>
 ]]></CSP>
 </Export>
