@@ -1,14 +1,14 @@
 Cache-FileServer
 ================
 
-Seed for sharing files via uid with InterSystems Cache
+Seed for sharing files via uid with InterSystems Cache.<br>
 
-Install.
-1. Create new namespace (eg. fileserver) with new database,
-2. Import files (via git or download zip-archive).
-3. Create new web-application "/fileserver", with dispatch class: Fileserver.Broker
+Install.<br>
+1. Create new namespace (eg. fileserver) with new database.<br>
+2. Import files (via git or download zip-archive).<br>
+3. Create new web-application "/fileserver", with dispatch class: Fileserver.Broker<br>
 
-If installation has been completed successfully, then your server will be available at:
-  http://<server ip>:<server port>/fileserver/files
-Test info at:
-  http://<server ip>:<server port>/fileserver/test
+If installation has been completed successfully, then your server will be available at:<br>
+  http://<server ip>:<server port>/fileserver/files<br>
+Test info at:<br>
+  http://<server ip>:<server port>/fileserver/test<br>
