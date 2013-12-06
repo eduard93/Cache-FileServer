@@ -96,7 +96,37 @@ Add files from directory <b>dir</b> to fileserver.<br>
 			} 
 		}
 	} else {
-		set st = $$$ERROR($$$GeneralError,"No such directory")
+		set st = $$$ERROR($$$DirectoryNotExist,dir)
+	}
+	quit st
+]]></Implementation>
+</Method>
+
+<Method name="AddFile">
+<Description><![CDATA[
+Add file to fileserver.<br>
+<b>file</b> - full filename with path.]]></Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>filename:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if ##class(%File).Exists(filename)
+	{
+		try {
+			set file=..%New()
+			set file.Name=##class(%File).GetFilename(filename)
+			set file.Directory=##class(%File).GetDirectory(filename)
+			set file.Extension=$p(file.Name,".",*)
+			set file.Size=##class(%File).GetFileSize(filename)
+			set file.DateCreated=$ZDATETIME(##class(%File).GetFileDateCreated(filename),3)	
+			set file.DateModified=$ZDATETIME(##class(%File).GetFileDateModified(filename),3)
+			do file.%Save()
+		} catch ex {		
+			set st=ex.AsStatus()
+		}
+	} else {
+		set st = $$$ERROR($$$FileDoesNotExist,file)
 	}
 	quit st
 ]]></Implementation>
@@ -104,7 +134,7 @@ Add files from directory <b>dir</b> to fileserver.<br>
 
 <Method name="DelDir">
 <Description><![CDATA[
-Delete files from  directory <b>dir</b> to fileserver.<br>
+Delete files from directory <b>dir</b> to fileserver.<br>
 <b>rec</b> - recursive: 1 - to delete subfolders, 0 - so skip them.]]></Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
@@ -112,14 +142,33 @@ Delete files from  directory <b>dir</b> to fileserver.<br>
 <Implementation><![CDATA[
 	set st=$$$OK
 	set dir=##class(%File).NormalizeDirectory(dir)
-	try {
-		if (rec=0) {
-			&SQL(DELETE FROM "File" WHERE Directory=:dir)
-		} else {
-			&SQL(DELETE FROM "File" WHERE Directory %STARTSWITH :dir)
+	if (rec=0) {
+		&SQL(DELETE FROM Fileserver."File" WHERE Directory=:dir)
+		if (SQLCODE'=0) {
+			set st = $System.Status.Error($$$SQLError, SQLCODE, dir)
 		}
-	} catch ex {
-		set st=$System.Status.Error($$$GeneralError,ex.AsSystemError())
+	} else {
+		&SQL(DELETE FROM Fileserver."File" WHERE Directory %STARTSWITH :dir)
+		if (SQLCODE'=0) {
+			set st = $System.Status.Error($$$SQLError, SQLCODE, dir)
+		}
+	}
+	quit st
+]]></Implementation>
+</Method>
+
+<Method name="DelFileById">
+<Description><![CDATA[
+Delete file from fileserver.<br>
+<b>fileid</b> - id of <class>Fileserver.File</class>.]]></Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>fileid:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	&SQL(DELETE FROM Fileserver."File" WHERE ID=:fileid)
+	if (SQLCODE'=0) {
+		set st = $System.Status.Error($$$SQLError, SQLCODE, fileid)
 	}
 	quit st
 ]]></Implementation>
@@ -141,11 +190,10 @@ Update files from directory <b>dir</b> on fileserver.<br>
 			do ..AddDir(dir, 0)
 		} else {
 			do ..DelDir(dir, 1)
-			do ..AddDir(dir, 1)
-			
+			do ..AddDir(dir, 1)			
 		}
 	} catch ex {
-		set st=$System.Status.Error($$$GeneralError,ex.AsSystemError())
+		set st=ex.AsStatus()
 	}
 ]]></Implementation>
 </Method>

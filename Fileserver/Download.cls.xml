@@ -52,6 +52,7 @@ File to download.</Description>
 <Cardinality>one</Cardinality>
 <Inverse>Downloads</Inverse>
 <Relationship>1</Relationship>
+<OnDelete>setnull</OnDelete>
 </Property>
 
 <UDLText name="T">
