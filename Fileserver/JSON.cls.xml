@@ -28,6 +28,7 @@ Custom user actions to get access to file.</Description>
 <FormalSpec>FileID:%Integer</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
+	set FileID=$ZSTRIP(FileID,"*E'N")
 	set CheckCustomPermission=1
 	if CheckCustomPermission=1 
 	{
@@ -75,6 +76,7 @@ Check if user has a correct Fileserver.Download object, serve him his file.</Des
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	try {
+		set DownloadId=$ZSTRIP(DownloadId,"*E'U")
 		&SQL(SELECT "File"->"Name","File"->"Directory","IP","DownloadCount","DateActiveUntil" INTO :fname, :fdir,:ip,:dcount,:dateactive FROM Fileserver.Download WHERE DownloadID=:DownloadId)
 		if (SQLCODE=0)
 		{
