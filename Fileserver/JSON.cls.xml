@@ -21,6 +21,14 @@ Converts SQL query result to JSON.</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="CheckPermission">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>FileID:%Integer</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	quit 1
+]]></Implementation>
+</Method>
+
 <Method name="RequestFile">
 <Description>
 Custom user actions to get access to file.</Description>
@@ -29,8 +37,7 @@ Custom user actions to get access to file.</Description>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set FileID=$ZSTRIP(FileID,"*E'N")
-	set CheckCustomPermission=1
-	if CheckCustomPermission=1 
+	if (..CheckPermission(FileID))
 	{
 		set DownloadId=..GenerateDownload(FileID)
 		set DownloadLink="http://"_%request.GetCgiEnv("HTTP_HOST")_"/fileserver/download/"_DownloadId
@@ -76,8 +83,7 @@ Check if user has a correct Fileserver.Download object, serve him his file.</Des
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	try {
-		set DownloadId=$ZSTRIP(DownloadId,"*E'U")
-		&SQL(SELECT "File"->"Name","File"->"Directory","IP","DownloadCount","DateActiveUntil" INTO :fname, :fdir,:ip,:dcount,:dateactive FROM Fileserver.Download WHERE DownloadID=:DownloadId)
+		&SQL(SELECT "File"->"Name","File"->"Directory","File"->"Size","IP","DownloadCount","DateActiveUntil" INTO :fname, :fdir, :fsize, :ip,:dcount,:dateactive FROM Fileserver.Download WHERE DownloadID=:DownloadId)
 		if (SQLCODE=0)
 		{
 			if ((ip=%request.GetCgiEnv("REMOTE_ADDR")) && ($ZDATETIMEH(dateactive,3,1)>$HOROLOG))
@@ -85,7 +91,9 @@ Check if user has a correct Fileserver.Download object, serve him his file.</Des
 				//w $ZDATETIMEH(dateactive,3,1)," ",$HOROLOG
 				set dcount=dcount+1
 				&SQL(UPDATE Fileserver.Download SET "DownloadCount"=:dcount WHERE DownloadID=:DownloadId)
+				//set %response.ContentLength=fsize
 				set %response.ContentType="application/octet-stream"
+				
 				do %response.SetHeader("Content-Disposition","attachment; filename="""_fname_"""")
 				set stream=##class(%FileBinaryStream).%New()
 				set stream.Filename=fdir_fname
@@ -98,7 +106,7 @@ Check if user has a correct Fileserver.Download object, serve him his file.</Des
 				set st=$System.Status.Error($$$GeneralError,"Download time limit exceeded, or another IP")
 			}
 		} else {
-			set st = $System.Status.Error($$$SQLError, , SQLCODE, "DownloadID not fount")
+			set st = $System.Status.Error($$$SQLError, SQLCODE, "DownloadID not found")
 		}
 	}catch ex {
 		set st=$$$ADDSC($System.Status.Error($$$GeneralError,ex.AsSystemError()), st)

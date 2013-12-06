@@ -70,7 +70,7 @@ All downloads of the file</Description>
 Add files from directory <b>dir</b> to fileserver.<br>
 <b>rec</b> - recursive: 1 - to add subfolders, 0 - so skip them.]]></Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
+<FormalSpec>dir:%String,rec:%Boolean=0</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set st=$$$OK
@@ -137,7 +137,7 @@ Add file to fileserver.<br>
 Delete files from directory <b>dir</b> to fileserver.<br>
 <b>rec</b> - recursive: 1 - to delete subfolders, 0 - so skip them.]]></Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
+<FormalSpec>dir:%String,rec:%Boolean=0</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set st=$$$OK
@@ -179,7 +179,7 @@ Delete file from fileserver.<br>
 Update files from directory <b>dir</b> on fileserver.<br>
 <b>rec</b> - recursive: 1 - to update subfolders, 0 - so skip them.]]></Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>dir:%String,rec:%Boolean</FormalSpec>
+<FormalSpec>dir:%String,rec:%Boolean=1</FormalSpec>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	// REWRITE IT
