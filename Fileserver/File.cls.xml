@@ -198,6 +198,51 @@ Update files from directory <b>dir</b> on fileserver.<br>
 ]]></Implementation>
 </Method>
 
+<Method name="DiffList">
+<Description><![CDATA[
+Finds diff between two lists.<br>
+<b>old</b> - original list.<br>
+<b>new</b> - modified list.<br>
+<b>.added</b> - list with all added elements (present in new list, absent in old list.<br>
+<b>.deleted</b> - list with all deleted elements (present in old list, absent in new list.<br>]]></Description>
+<Internal>1</Internal>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>old:%List,new:%List,*added:%List,*deleted:%List</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set st=$$$OK
+	if ($LISTVALID(old)=0) quit $$$ERROR($$$AttributeValueMustBeList,"old")
+	if ($LISTVALID(new)=0) quit $$$ERROR($$$AttributeValueMustBeList,"new")
+    try {
+    	for i=1:1:$LISTLENGTH(old) 
+    	{
+    		set match=$LISTFIND(new,$LIST(old,i))
+    		if match'=0
+    		{
+	    		set $LIST(old,i)=""
+	    		set $LIST(new,match)=""
+    		}
+    	}
+    	set added=new
+    	set deleted=old
+    } catch ex {
+	    set st=ex.AsStatus()
+    }
+    quit st
+]]></Implementation>
+</Method>
+
+<Method name="ItsAllTheSameShit">
+<Internal>1</Internal>
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim st As %Status = $$$OK
+	set st=$$$OK
+	set st=1
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DataLocation>^Fileserver.FileD</DataLocation>
