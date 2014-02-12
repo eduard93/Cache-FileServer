@@ -201,51 +201,54 @@ Update files from directory <b>dir</b> on fileserver.<br>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
 	set st=$$$OK
-	set dir=##class(%File).NormalizeDirectory(dir)
 	
-	if ##class(%File).DirectoryExists(dir)
-	{ 		
-		set rs=##Class(%ResultSet).%New("%File.FileSet")
- 		do rs.Execute(dir,"*",,1) // build result set of all files in dir
- 		while rs.Next() {
-			if rs.Get("Type")'="D" //check for directories
-			{
-				 set $list(dirfiles,*+1)=rs.Get("ItemName") // Build list of files in the folder
-			} else {
-				if (rec=1) {
-					do ..UpdDir(rs.Get("Name"),1)
+	try {
+		set dir=##class(%File).NormalizeDirectory(dir)
+		if ##class(%File).DirectoryExists(dir)
+		{ 		
+			set rs=##Class(%ResultSet).%New("%File.FileSet")
+ 			do rs.Execute(dir,"*",,1) // build result set of all files in dir
+ 			while rs.Next() {
+				if rs.Get("Type")'="D" //check for directories
+				{
+					set $list(dirfiles,*+1)=rs.Get("ItemName") // Build list of files in the folder
+				} else {
+					if (rec=1) {
+						do ..UpdDir(rs.Get("Name"),1)
+					}
 				}
 			}
-		}
 		
-		// Build list of files in the database
- 		set sql = "SELECT Name FROM Fileserver.""File"" WHERE Directory=?"
-  		set tStatement = ##class(%SQL.Statement).%New()	
-		set st = tStatement.%Prepare(sql)
-   		if (st'=1) quit st
-   		set rset = tStatement.%Execute(dir)
-   		while rset.%Next() {
-	   		set $list(basefiles,*+1)=rset.%Get("Name")
-     	}
+			// Build list of files in the database
+ 			set sql = "SELECT Name FROM Fileserver.""File"" WHERE Directory=?"
+  			set tStatement = ##class(%SQL.Statement).%New()	
+			set st = tStatement.%Prepare(sql)
+   			set rset = tStatement.%Execute(dir)
+   			while rset.%Next() {
+	   			set $list(basefiles,*+1)=rset.%Get("Name")
+     		}
      	
-     	// Find differense between lists of files in database and directory
-		do ..DiffList(basefiles,dirfiles,.added,.deleted)
+     		// Find differense between lists of files in database and directory
+			do ..DiffList(basefiles,dirfiles,.added,.deleted)
 		
-		set ptr=0,count=0
-   		while $LISTNEXT(added,ptr,value) 
-   		{
-    		SET count=count+1
-   			do ..AddFile(dir_value)
-   		}
-   		
-   		set ptr=0,count=0
-   		while $LISTNEXT(deleted,ptr,value) 
-   		{
-    		SET count=count+1
-   			do ..DelFile(dir,value)
-   		}
-	} else {
-		set st = $$$ERROR($$$DirectoryNotExist,dir)
+			set ptr=0,count=0
+   			while $LISTNEXT(added,ptr,value) 
+   			{
+    			set count=count+1
+   				do ..AddFile(dir_value)
+   			}
+   			
+   			set ptr=0,count=0
+   			while $LISTNEXT(deleted,ptr,value) 
+   			{
+    			set count=count+1
+   				do ..DelFile(dir,value)
+   			}
+		} else {
+			set st = $$$ERROR($$$DirectoryNotExist,dir)
+		} 
+	} catch ex {
+		set st=ex.AsStatus()
 	}
 	quit st
 ]]></Implementation>
