@@ -16,5 +16,49 @@ function control($scope, $http) {
       		})
 	}
 	
+	    $scope.FileLoad=function(){
+		    alert("!!!");
+        var formData = new FormData();
+        for(var i=0;i<document.getElementById("myFile").files.length;i++){
+            formData.append("fotofile"+i, document.getElementById("myFile").files[i]);
+        }
+        var reader = new FileReader;
+        reader.readAsDataURL(document.getElementById("myFile").files[0]);
+        var place = document.getElementById("Logo");
+
+        // Как только картинка загрузится
+        reader.onload = function(e) {
+
+            // установим картинку в объект img
+            place.src = e.target.result;
+        }
+
+
+        var xhr = new XMLHttpRequest();
+
+
+
+        // Отправим данные на сервер
+        xhr.open("POST", "/fileserver/upload", true);
+        xhr.upload.onprogress = function(e) { // <<<
+            if (e.lengthComputable) {
+                progressBar.value = (e.loaded / e.total) * 100;
+            }
+        };
+        xhr.upload.onloadend=function(e){
+            console.log(e);
+
+        }
+        xhr.onreadystatechange=function(e){
+            if (xhr.readyState == 4) {
+                $scope.ddd=xhr.responseText;
+                var val = document.getElementById("adjrgsaderg");
+                val.value=xhr.responseText;
+            }
+        }
+        xhr.send(formData);
+
+    };
+	
  };]]></CSP>
 </Export>

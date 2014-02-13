@@ -114,5 +114,28 @@ Check if user has a correct Fileserver.Download object, serve him his file.</Des
 	quit st
 ]]></Implementation>
 </Method>
+
+<Method name="UploadFile">
+<Description>
+Check if user has a correct Fileserver.Download object, serve him his file.</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	try {	
+		set FileName="fotofile0"
+ 		set Location="D:\Stream\"
+		set Stream =%request.GetMimeData(FileName,1)
+		set Name=FileName_"."_$P(Stream.ContentType,"/",*)	
+		
+		set file=##class(%Stream.FileBinary).%New()
+		set file.Filename=Location_Name
+		do file.CopyFromAndSave(Stream)
+		
+	}catch ex {
+		set st=$$$ADDSC($System.Status.Error($$$GeneralError,ex.AsSystemError()), st)
+	}
+	quit st
+]]></Implementation>
+</Method>
 </Class>
 </Export>
