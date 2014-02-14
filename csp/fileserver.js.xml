@@ -2,7 +2,7 @@
 <Export generator="Cache" version="25">
 <CSP name="fileserver.js" application="/csp/fileserver/" default="1"><![CDATA[
 function control($scope, $http) {
-
+    
 	// Get list of files
     $scope.getFiles = function () { 
         $http.get("/fileserver/getfilelist").success(
@@ -14,10 +14,9 @@ function control($scope, $http) {
         	{  
         		$scope.alerts.push({ type: "error", msg: "Error downloading filelist" });
       		})
-	}
+	};
 	
-	    $scope.FileLoad=function(){
-		    alert("!!!");
+	$scope.FileLoad=function(){
         var formData = new FormData();
         for(var i=0;i<document.getElementById("myFile").files.length;i++){
             formData.append("fotofile"+i, document.getElementById("myFile").files[i]);
@@ -26,12 +25,7 @@ function control($scope, $http) {
         reader.readAsDataURL(document.getElementById("myFile").files[0]);
         var place = document.getElementById("Logo");
 
-        // Как только картинка загрузится
-        reader.onload = function(e) {
-
-            // установим картинку в объект img
-            place.src = e.target.result;
-        }
+       
 
 
         var xhr = new XMLHttpRequest();
@@ -46,7 +40,7 @@ function control($scope, $http) {
             }
         };
         xhr.upload.onloadend=function(e){
-            console.log(e);
+             progressBar.value = 100;
 
         }
         xhr.onreadystatechange=function(e){
@@ -57,8 +51,10 @@ function control($scope, $http) {
             }
         }
         xhr.send(formData);
-
+        
+        $scope.getFiles();
     };
+
 	
  };]]></CSP>
 </Export>

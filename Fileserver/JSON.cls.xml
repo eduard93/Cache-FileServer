@@ -121,16 +121,27 @@ Check if user has a correct Fileserver.Download object, serve him his file.</Des
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Status</ReturnType>
 <Implementation><![CDATA[
+	#dim st As %Status = $$$OK
 	try {	
-		set FileName="fotofile0"
- 		set Location="D:\Stream\"
-		set Stream =%request.GetMimeData(FileName,1)
-		set Name=FileName_"."_$P(Stream.ContentType,"/",*)	
-		
+ 		set Location=$g(^Settings("user_files_dir"),"C:\UserFiles\")
+		set Stream =%request.GetMimeData("fotofile0",1)
+		set Name=$p(Stream.FileName,".",0,*-1)
+		set Extension=$p(Stream.FileName,".",*)
+		set FileName=Location_Name_"."_Extension
+
+		set counter = 1
+		while ##class(%File).Exists(FileName) 
+		{
+			set FileName=Location_Name_"_("_counter_")."_Extension
+			set counter=counter+1
+		}
 		set file=##class(%Stream.FileBinary).%New()
-		set file.Filename=Location_Name
+		set file.Filename=FileName
 		do file.CopyFromAndSave(Stream)
 		
+		do ##class(Fileserver.File).AddFile(FileName)
+		
+		kill file
 	}catch ex {
 		set st=$$$ADDSC($System.Status.Error($$$GeneralError,ex.AsSystemError()), st)
 	}
