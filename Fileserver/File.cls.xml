@@ -127,7 +127,7 @@ Add file to fileserver.<br>
 			set st=ex.AsStatus()
 		}
 	} else {
-		set st = $$$ERROR($$$FileDoesNotExist,file)
+		set st = $$$ERROR($$$FileDoesNotExist, filename)	
 	}
 	quit st
 ]]></Implementation>
