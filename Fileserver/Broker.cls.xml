@@ -31,16 +31,5 @@ Request map.</Description>
 	quit $$$OK
 ]]></Implementation>
 </Method>
-
-<Method name="Http404">
-<Description>
-404 page</Description>
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
-	do ##class(csp.files).OnPage()
-	quit $$$OK
-]]></Implementation>
-</Method>
 </Class>
 </Export>
